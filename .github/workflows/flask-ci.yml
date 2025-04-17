@@ -1,4 +1,4 @@
-name: Flask CI Pipeline
+name: Flask CI/CD Pipeline
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout the code
       - name: Checkout Repository
         uses: actions/checkout@v3
 
@@ -19,10 +19,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 3: Run app inside Docker container
-      - name: Run Flask app in Docker
+      # Step 3: Log in to DockerHub
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Step 4: Build and push Docker image
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/flask-app:latest
+
+      # Step 5: Optionally run container for test (CI)
+      - name: Test Run Flask App Container
         run: |
-          docker run --rm -v ${{ github.workspace }}:/app -w /app python:3.9 bash -c "
-            pip install -r requirements.txt &&
-            python app.py
-          "
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flask-app:latest
+          docker run -d -p 5000:5000 ${{ secrets.DOCKERHUB_USERNAME }}/flask-app:latest
