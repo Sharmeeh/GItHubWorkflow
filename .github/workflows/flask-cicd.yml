@@ -29,10 +29,10 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/flask-app-new
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/flask-app-new1
 
       # Step 4: Optionally run container for test (CI)
       - name: Test Run Flask App Container
         run: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flask-app-new
-          docker run -d -p 5000:5000 ${{ secrets.DOCKERHUB_USERNAME }}/flask-app
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/flask-app-new1
+          docker run -d -p 5000:5000 ${{ secrets.DOCKERHUB_USERNAME }}/flask-app-new1
